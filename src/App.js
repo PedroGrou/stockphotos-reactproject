@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { FaSearch } from 'react-icons/fa';
-import Photo from './Photo';
 
+import Photo from './Photo';
 const clientID = `?client_id=${process.env.REACT_APP_ACCESS_KEY}`;
 const mainUrl = `https://api.unsplash.com/photos/`;
 const searchUrl = `https://api.unsplash.com/search/photos/`;
@@ -11,7 +11,6 @@ function App() {
   const [photos, setPhotos] = useState([]);
   const [page, setPage] = useState(0);
   const [query, setQuery] = useState('');
-
   const fetchImages = async () => {
     setLoading(true);
     let url;
@@ -37,30 +36,29 @@ function App() {
       setLoading(false);
     } catch (error) {
       console.log(error);
+      setLoading(false);
     }
   };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setPage(1);
-    fetchImages();
-  };
-
   useEffect(() => {
     fetchImages();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [page]);
 
   useEffect(() => {
     const event = window.addEventListener('scroll', () => {
-      if (!loading && window.innerHeight + window.scrollY >= document.body.scrollHeight - 2) {
+      if ((!loading && window.innerHeight + window.scrollY) >= document.body.scrollHeight - 2) {
         setPage((oldPage) => {
           return oldPage + 1;
         });
       }
     });
-    return () => window.addEventListener('scroll', event);
+    return () => window.removeEventListener('scroll', event);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
-
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    setPage(1);
+  };
   return (
     <main>
       <section className="search">
@@ -68,9 +66,9 @@ function App() {
           <input
             type="text"
             placeholder="search"
-            className="form-input"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
+            className="form-input"
           />
           <button type="submit" className="submit-btn" onClick={handleSubmit}>
             <FaSearch />
@@ -79,11 +77,11 @@ function App() {
       </section>
       <section className="photos">
         <div className="photos-center">
-          {photos.map((photo) => {
-            return <Photo key={photo.id} {...photo} />;
+          {photos.map((image, index) => {
+            return <Photo key={index} {...image} />;
           })}
         </div>
-        {loading && <div className="loading"> </div>}
+        {loading && <div className="loading"></div>}
       </section>
     </main>
   );
